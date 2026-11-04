@@ -101,3 +101,4 @@ textarea{direction:ltr;font-family:ui-monospace,Menlo,monospace;font-size:12px;m
 .mbody.z img{width:230%;max-width:none}
 .mempty{background:var(--card);color:var(--ink);border-radius:12px;padding:18px;margin:20px 6px;line-height:1.6}
 .resume{color:var(--brand)}
+.qtext,.opt,.fb .ans,.fb .exp,.miss{overflow-wrap:anywhere}
