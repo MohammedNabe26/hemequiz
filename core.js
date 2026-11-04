@@ -1,7 +1,7 @@
 /* Shared logic: used by the app (browser) and by push/send.js (Node). */
 (function (root) {
   'use strict';
-  var NCH = 19;
+  var NCH = 35;
   var CHAPTERS = {
     1: 'Haemopoiesis & growth factors',
     2: 'Blood cells, anaemia & bone marrow',
@@ -21,7 +21,23 @@
     16: 'Myelodysplastic syndromes',
     17: 'Acute lymphoblastic leukaemia',
     18: 'Chronic lymphoid leukaemias',
-    19: 'Hodgkin lymphoma'
+    19: 'Hodgkin lymphoma',
+    20: 'Non-Hodgkin lymphoma',
+    21: 'Lymphoma prognostic indices',
+    22: 'Myeloma & MGUS',
+    23: 'Amyloidosis',
+    24: 'Aplastic anaemia & marrow failure',
+    25: 'Stem cell transplantation',
+    26: 'Haemostasis & coagulation tests',
+    27: 'Bleeding & platelet disorders',
+    28: 'Haemophilia & von Willebrand disease',
+    29: 'Acquired coagulation disorders, DIC & TMA',
+    30: 'Thrombosis: risk & diagnosis',
+    31: 'Anticoagulant & thrombolytic therapy',
+    32: 'Haematology of systemic disease',
+    33: 'Blood transfusion',
+    34: 'Pregnancy & neonatal haematology',
+    35: 'Appendix: germline & ambiguous-lineage'
   };
 
   // Turn the compact array rows into objects with stable ids "chapter.n"

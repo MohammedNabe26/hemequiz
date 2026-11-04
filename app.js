@@ -233,7 +233,7 @@ function vSettings() {
   var cfg = S.keys && S.sub ? JSON.stringify(makeConfig()) : '';
   var h = topbar() + '<div class="card"><h3>Study plan</h3>' +
     '<label>Today\'s chapter</label><select id="setCh" class="en">' + chOpts + '</select>' +
-    '<div class="small mute">Moves to the next chapter each day (1 → 19, then repeats).</div>' +
+    '<div class="small mute">Moves to the next chapter each day (1 → ' + C.NCH + ', then repeats).</div>' +
     '<label>Start date</label><input type="date" id="setStart" value="' + S.start + '">' +
     '<div class="two"><div><label>First notification</label><select id="setFrom" class="en">' + hoursOpts(S.from) + '</select></div>' +
     '<div><label>Last notification</label><select id="setTo" class="en">' + hoursOpts(S.to) + '</select></div></div>' +
