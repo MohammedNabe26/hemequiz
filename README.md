@@ -1,33 +1,23 @@
-# Hematology Quiz — ڕێنمایی (کوردی سۆرانی)
+# Hematology Quiz
 
-ئەپی PWA بۆ ئەندرۆید: ٥٩١ پرسیار MCQ لە ١٩ چاپتەری خشتەکانت. هەر ڕۆژێک یەک چاپتەر، دووبارەکردنەوەی دابەشکراو (Leitner)، ئامار، و نۆتفیکەیشنی کاتژمێری.
+An Android PWA with 591 MCQs built from the tables of 19 hematology chapters. It covers one chapter per day, uses spaced repetition (Leitner boxes), shows stats, sends optional hourly question notifications, and lets you view the original table after each answer.
 
-## بەشی ١ — تاقیکردنەوەی ئەپەکە (نۆتفیکەیشن نا) · ~١٠ خولەک
-GitHub Pages بەخۆڕاییە و HTTPS ـی هەیە (پێویستە بۆ دابەزاندن و نۆتفیکەیشن).
+## 1. Host the app (GitHub Pages)
+1. Upload these files to the root of a public repo: `index.html`, `app.js`, `core.js`, `questions.js`, `style.css`, `sw.js`, `manifest.webmanifest`, and the 4 `.png` icons.
+2. Go to **Settings → Pages → Deploy from a branch → main / (root) → Save**.
+3. Open `https://<username>.github.io/<repo>/` in Chrome, then tap **⋮ → Add to Home screen**.
 
-1. لە github.com ئەکاونتێک دروست بکە (یان بچۆ ژوورەوە).
-2. **New repository** ← ناو: `hemequiz` ← **Public** ← Create.
-3. **uploading an existing file** ← هەموو ناوەڕۆکی ئەم zip ـە (فۆڵدەری `.github` و `push` و `data` یش) ڕاکێشە ← Commit.
-   تێبینی: فۆڵدەری `.github` لەسەر مۆبایل ڕەنگە نەبینرێت؛ باشترە لەسەر کۆمپیوتەر بیکەیت.
-4. **Settings ← Pages ← Source: Deploy from a branch ← main / (root) ← Save**.
-5. دوای ١-٢ خولەک ئەم لینکە کار دەکات: `https://ناوی-بەکارهێنەر.github.io/hemequiz/`
-6. لە Chrome ی ئەندرۆید بیکەرەوە ← مێنیوی ⋮ ← **Add to Home screen / Install app**.
+## 2. Table images (stay on your phone only)
+The table images are **not** in this repo, because it is public and the tables are copyrighted.
+In the app go to **Settings → Table images → Import tables file** and choose `hemequiz-tables.json`. You only need to do this once per phone.
 
-## بەشی ٢ — نۆتفیکەیشنی کاتژمێری
-ئەپەکە خۆی ناتوانێت لە کاتی داخراویدا نۆتفیکەیشن بنێرێت؛ GitHub Actions هەموو کاتژمێرێک push دەنێرێت.
+## 3. Hourly notifications (optional)
+1. Also upload `push/send.js`, `push/package.json` and `.github/workflows/hourly.yml` (keep the folder paths).
+2. In the app, go to **Settings**, set your hours and tap **Save**. Then tap **1. Generate keys**, **2. Enable notifications** (Allow) and **3. Copy CONFIG**.
+3. In the repo, go to **Settings → Secrets and variables → Actions → New repository secret**, name it `HEMEQUIZ_CONFIG` and paste the CONFIG.
+4. Go to **Actions → hourly-question → Run workflow** to send a test notification. GitHub may delay scheduled runs by 5–30 minutes.
 
-1. لە ئەپەکە: **ڕێکخستن** ← ڕێکخستنی کاتەکان ← پاشەکەوتکردن.
-2. **١. دروستکردنی کلیلەکان** ← **٢. چالاککردنی نۆتفیکەیشن** (Allow) ← **٣. کۆپیکردنی CONFIG**.
-3. لە GitHub ی repo: **Settings ← Secrets and variables ← Actions ← New repository secret**
-   - Name: `HEMEQUIZ_CONFIG`
-   - Secret: CONFIG ـی کۆپیکراو ← Add.
-4. **Actions** ← `hourly-question` ← **Run workflow** (force = 1). نۆتفیکەیشنێک دەبێت بگات.
-5. لەمەودوا هەموو کاتژمێرێک (لە ماوەی کاتی دیاریکراو) خۆکارانە دەنێرێت. GitHub ڕەنگە ٥-٣٠ خولەک دوا بخات.
-
-## تێبینی
-- نۆتفیکەیشنەکە تەنیا پرسیارەکە نیشان دەدات؛ لێی بدە ← پرسیارەکە دەکرێتەوە.
-- ئەگەر کلیلەکانت دووبارە دروست کرد، پێویستە هەنگاوی ٢ و ٣ دووبارە بکەیتەوە.
-- پێشکەوتن لەسەر مۆبایلەکە پاشەکەوت دەکرێت. ئەگەر داتای Chrome بسڕیتەوە، دەسڕێتەوە.
-- پرسیارەکان لە `data/*.js` ن؛ دوای دەستکاری: `node build.js` ڕابکێشە بۆ نوێکردنەوەی `questions.js`.
-- زۆربەی نۆتفیکەیشنەکان لە چاپتەری ئەمڕۆن (٧٠٪)، ٣٠٪ لە چاپتەرە پێشووەکان.
-v1
+## Notes
+- Progress is stored in the browser on your phone. Clearing Chrome's site data erases it.
+- To edit questions, change `data/*.js` and run `node build.js` to regenerate `questions.js`.
+- About 70% of notification questions come from today's chapter and 30% from earlier chapters.

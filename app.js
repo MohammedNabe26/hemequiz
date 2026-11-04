@@ -47,6 +47,7 @@ var ICON = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
   stats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   set: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>',
+  table: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>',
   drop: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5S5 10 5 14.5a7 7 0 0014 0C19 10 12 2.5 12 2.5z"/></svg>'
 };
 
@@ -73,7 +74,7 @@ function buildSession(n) {
   return C.shuffle(ids, Math.random);
 }
 function startQuiz(ids, title, single) {
-  if (!ids.length) { toast('هیچ پرسیارێک نییە'); return; }
+  if (!ids.length) { toast('No questions here'); return; }
   quiz = { queue: ids.slice(), i: 0, first: {}, wrong: [], title: title, single: !!single, cur: null };
   view = 'quiz'; nextQ();
 }
@@ -116,21 +117,21 @@ function onNext() { quiz.i++; nextQ(); }
 function topbar() {
   var st = streak();
   return '<div class="top"><div class="brand"><span class="drop">' + ICON.drop + '</span><span class="en">Hematology Quiz</span></div>' +
-    '<span class="chip">🔥 ' + st + ' <span class="small mute">ڕۆژ</span></span></div>';
+    '<span class="chip">🔥 ' + st + ' <span class="small mute">day streak</span></span></div>';
 }
 function vHome() {
   var ch = todayCh(), list = BYCH[ch] || [], seen = list.filter(function (q) { return S.cards[q.id] && S.cards[q.id].s > 0; }).length;
   var due = dueIds().length, tl = todayLog(), goal = Math.max(1, S.to - S.from + 1);
   var h = topbar();
-  h += '<div class="card today"><div class="kicker">ئەمڕۆ · ڕۆژی ' + (C.dayIndex(S.start, today()) + 1) + '</div>' +
+  h += '<div class="card today"><div class="kicker">TODAY · DAY ' + (C.dayIndex(S.start, today()) + 1) + '</div>' +
     '<h2 class="en">Chapter ' + ch + '</h2><div class="en mute">' + esc(C.CHAPTERS[ch]) + '</div>' +
-    '<div class="stats"><div class="stat"><b>' + list.length + '</b><span>پرسیار</span></div>' +
-    '<div class="stat"><b>' + seen + '</b><span>بینراو</span></div>' +
-    '<div class="stat"><b>' + tl.n + '</b><span>وەڵامی ئەمڕۆ</span></div></div>' +
-    '<button class="btn primary" data-act="session">کوێزی ئەمڕۆ دەستپێبکە (' + SESSION_N + ' پرسیار)</button>' +
-    '<div class="row"><button class="btn" data-act="due"' + (due ? '' : ' disabled') + '>دووبارەکردنەوە (' + due + ')</button>' +
-    '<button class="btn" data-act="chall" data-ch="' + ch + '">هەموو چاپتەر (' + list.length + ')</button></div></div>';
-  h += '<h3 style="margin:18px 2px 10px">هەموو چاپتەرەکان</h3><div class="grid">';
+    '<div class="stats"><div class="stat"><b>' + list.length + '</b><span>Questions</span></div>' +
+    '<div class="stat"><b>' + seen + '</b><span>Seen</span></div>' +
+    '<div class="stat"><b>' + tl.n + '</b><span>Answered today</span></div></div>' +
+    '<button class="btn primary" data-act="session">Start today\'s quiz (' + SESSION_N + ' questions)</button>' +
+    '<div class="row"><button class="btn" data-act="due"' + (due ? '' : ' disabled') + '>Review due (' + due + ')</button>' +
+    '<button class="btn" data-act="chall" data-ch="' + ch + '">Whole chapter (' + list.length + ')</button></div></div>';
+  h += '<h3 style="margin:18px 2px 10px">All chapters</h3><div class="grid">';
   for (var c = 1; c <= C.NCH; c++) {
     var L = BYCH[c] || [], sn = L.filter(function (q) { return S.cards[q.id] && S.cards[q.id].s > 0; }).length;
     h += '<button class="ch' + (c === ch ? ' now' : '') + '" data-act="chall" data-ch="' + c + '"><span class="n">CH ' + c + '</span><span class="t">' + esc(C.CHAPTERS[c]) + '</span>' +
@@ -140,7 +141,7 @@ function vHome() {
 }
 function vQuiz() {
   var cur = quiz.cur, q = cur.q, total = quiz.queue.length, answered = cur.chosen !== null;
-  var h = '<div class="qhead"><button class="x" data-act="quit" aria-label="داخستن">✕</button>' +
+  var h = '<div class="qhead"><button class="x" data-act="quit" aria-label="Close">✕</button>' +
     '<div class="prog"><div class="bar"><i style="width:' + Math.round(100 * quiz.i / total) + '%"></i></div></div>' +
     '<span class="small mute en">' + (quiz.i + 1) + '/' + total + '</span></div>' +
     '<div class="card"><span class="tag">CH ' + q.ch + ' · Table ' + esc(q.tbl) + '</span>' +
@@ -153,40 +154,41 @@ function vQuiz() {
   });
   if (answered) {
     var ok = cur.opts[cur.chosen].ok;
-    h += '<div class="fb ' + (ok ? 'ok' : 'bad') + '"><h3>' + (ok ? 'ڕاستە ✓' : 'هەڵەیە ✗') + '</h3>' +
-      '<div class="ans">' + esc(q.a) + '</div><div class="exp">' + esc(q.e) + '</div></div>';
+    h += '<div class="fb ' + (ok ? 'ok' : 'bad') + '"><h3>' + (ok ? 'Correct ✓' : 'Incorrect ✗') + '</h3>' +
+      '<div class="ans">' + esc(q.a) + '</div><div class="exp">' + esc(q.e) + '</div>' +
+      '<button class="tblbtn" data-act="table" data-t="' + esc(q.tbl) + '">' + ICON.table + ' Show Table ' + esc(q.tbl) + '</button></div>';
     if (ok && quiz.first[q.id] === true) {
-      h += '<div class="rate"><button class="btn" data-act="rate" data-k="hard">ناڕوون بوو</button><button class="btn primary" data-act="rate" data-k="easy">ئاسان بوو</button></div>';
+      h += '<div class="rate"><button class="btn" data-act="rate" data-k="hard">Unsure</button><button class="btn primary" data-act="rate" data-k="easy">Easy</button></div>';
     } else {
-      h += '<button class="btn primary" data-act="next">' + (quiz.i + 1 >= quiz.queue.length ? 'تەواوکردن' : 'دواتر') + '</button>';
+      h += '<button class="btn primary" data-act="next">' + (quiz.i + 1 >= quiz.queue.length ? 'Finish' : 'Next') + '</button>';
     }
   }
   return h + '</div>';
 }
 function vDone() {
   var ids = Object.keys(quiz.first), ok = ids.filter(function (id) { return quiz.first[id]; }).length;
-  var h = '<div class="card" style="margin-top:20px"><div class="kicker">' + esc(quiz.title) + '</div><h2>کوێز تەواو بوو</h2>' +
+  var h = '<div class="card" style="margin-top:20px"><div class="kicker">' + esc(quiz.title) + '</div><h2>Quiz complete</h2>' +
     '<div class="big en">' + ok + ' / ' + ids.length + '</div><div class="bar ok"><i style="width:' + (ids.length ? Math.round(100 * ok / ids.length) : 0) + '%"></i></div>';
   if (quiz.wrong.length) {
-    h += '<h3 style="margin:18px 0 4px">هەڵەکانت</h3>';
+    h += '<h3 style="margin:18px 0 4px">Your mistakes</h3>';
     quiz.wrong.forEach(function (id) { var q = BYID[id]; h += '<div class="miss en"><div>' + esc(q.q) + '</div><div class="a">' + esc(q.a) + '</div></div>'; });
   }
-  if (!quiz.single) h += '<button class="btn primary" data-act="session">دووبارە (١٠ پرسیاری نوێ)</button>';
-  else h += '<button class="btn primary" data-act="session">بەردەوامبە لە کوێزی ئەمڕۆ</button>';
-  return h + '<button class="btn" data-act="home">گەڕانەوە</button></div>';
+  if (!quiz.single) h += '<button class="btn primary" data-act="session">Another 10 questions</button>';
+  else h += '<button class="btn primary" data-act="session">Continue with today\'s quiz</button>';
+  return h + '<button class="btn" data-act="home">Back to home</button></div>';
 }
 function vStats() {
   var ids = Object.keys(S.cards), tot = ids.length, s = 0, c = 0, mast = 0;
   ids.forEach(function (id) { var k = S.cards[id]; s += k.s; c += k.c; if (k.b >= 4) mast++; });
   var h = topbar() + '<div class="card"><div class="stats" style="margin-top:0">' +
-    '<div class="stat"><b>' + (s ? Math.round(100 * c / s) : 0) + '%</b><span>ڕاستی گشتی</span></div>' +
-    '<div class="stat"><b>' + tot + '/' + QB.length + '</b><span>پرسیاری بینراو</span></div>' +
-    '<div class="stat"><b>' + mast + '</b><span>لەبەرکراو</span></div></div>' +
-    '<div class="small mute">دوایین ١٤ ڕۆژ (ژمارەی وەڵامەکان)</div><div class="bars">';
+    '<div class="stat"><b>' + (s ? Math.round(100 * c / s) : 0) + '%</b><span>Accuracy</span></div>' +
+    '<div class="stat"><b>' + tot + '/' + QB.length + '</b><span>Seen</span></div>' +
+    '<div class="stat"><b>' + mast + '</b><span>Mastered</span></div></div>' +
+    '<div class="small mute">Answers per day, last 14 days</div><div class="bars">';
   var mx = 1, days = [];
   for (var i = 13; i >= 0; i--) { var d = new Date(); d.setDate(d.getDate() - i); var n = (S.log[isoOf(d)] || { n: 0 }).n; days.push(n); if (n > mx) mx = n; }
   days.forEach(function (n) { h += '<i class="' + (n ? '' : 'z') + '" style="height:' + Math.max(4, Math.round(100 * n / mx)) + '%" title="' + n + '"></i>'; });
-  h += '</div></div><div class="card"><h3>بەگوێرەی چاپتەر</h3>';
+  h += '</div></div><div class="card"><h3>By chapter</h3>';
   for (var ch = 1; ch <= C.NCH; ch++) {
     var L = BYCH[ch] || [], ss = 0, cc = 0, sn = 0;
     L.forEach(function (q) { var k = S.cards[q.id]; if (k) { ss += k.s; cc += k.c; if (k.s) sn++; } });
@@ -201,28 +203,33 @@ function vSettings() {
   var chOpts = ''; for (var c = 1; c <= C.NCH; c++) chOpts += '<option value="' + c + '"' + (c === todayCh() ? ' selected' : '') + '>Chapter ' + c + ' — ' + esc(C.CHAPTERS[c]) + '</option>';
   var perm = ('Notification' in window) ? Notification.permission : 'unsupported';
   var cfg = S.keys && S.sub ? JSON.stringify(makeConfig()) : '';
-  var h = topbar() + '<div class="card"><h3>پلانی خوێندن</h3>' +
-    '<label>چاپتەری ئەمڕۆ</label><select id="setCh" class="en">' + chOpts + '</select>' +
-    '<div class="small mute">هەر ڕۆژێک دەچێتە چاپتەری دواتر (١ تا ١٩، پاشان دووبارە). </div>' +
-    '<label>بەرواری دەستپێکردن</label><input type="date" id="setStart" value="' + S.start + '">' +
-    '<div class="two"><div><label>یەکەم نۆتفیکەیشن</label><select id="setFrom" class="en">' + hoursOpts(S.from) + '</select></div>' +
-    '<div><label>دوایین نۆتفیکەیشن</label><select id="setTo" class="en">' + hoursOpts(S.to) + '</select></div></div>' +
-    '<button class="btn primary" data-act="saveset">پاشەکەوتکردن</button></div>';
-  h += '<div class="card"><h3>نۆتفیکەیشنی کاتژمێری</h3>' +
-    '<div class="small mute">دۆخی ئێستا: <b class="en">' + perm + '</b> · کلیلەکان: <b>' + (S.keys ? 'ئامادەن' : 'نییە') + '</b> · مۆڵەت/subscription: <b>' + (S.sub ? 'ئامادەیە' : 'نییە') + '</b></div>' +
-    '<ol class="steps"><li>دروستکردنی کلیلەکان</li><li>چالاککردنی نۆتفیکەیشن (Allow)</li><li>کۆپیکردنی CONFIG و دانانی لە GitHub (ڕێنمایی لە README)</li></ol>' +
-    '<button class="btn" data-act="genkeys">١. دروستکردنی کلیلەکان</button>' +
-    '<button class="btn" data-act="subscribe"' + (S.keys ? '' : ' disabled') + '>٢. چالاککردنی نۆتفیکەیشن</button>' +
-    '<button class="btn" data-act="copycfg"' + (cfg ? '' : ' disabled') + '>٣. کۆپیکردنی CONFIG</button>' +
-    '<button class="btn ghost" data-act="testnotif">نۆتفیکەیشنی تاقیکردنەوە</button>' +
+  var h = topbar() + '<div class="card"><h3>Study plan</h3>' +
+    '<label>Today\'s chapter</label><select id="setCh" class="en">' + chOpts + '</select>' +
+    '<div class="small mute">Moves to the next chapter each day (1 → 19, then repeats).</div>' +
+    '<label>Start date</label><input type="date" id="setStart" value="' + S.start + '">' +
+    '<div class="two"><div><label>First notification</label><select id="setFrom" class="en">' + hoursOpts(S.from) + '</select></div>' +
+    '<div><label>Last notification</label><select id="setTo" class="en">' + hoursOpts(S.to) + '</select></div></div>' +
+    '<button class="btn primary" data-act="saveset">Save</button></div>';
+  h += '<div class="card"><h3>Hourly notifications</h3>' +
+    '<div class="small mute">Permission: <b>' + perm + '</b> · Keys: <b>' + (S.keys ? 'ready' : 'none') + '</b> · Subscription: <b>' + (S.sub ? 'ready' : 'none') + '</b></div>' +
+    '<ol class="steps"><li>Generate keys</li><li>Enable notifications (tap Allow)</li><li>Copy CONFIG and save it as a GitHub secret (see README)</li></ol>' +
+    '<button class="btn" data-act="genkeys">1. Generate keys</button>' +
+    '<button class="btn" data-act="subscribe"' + (S.keys ? '' : ' disabled') + '>2. Enable notifications</button>' +
+    '<button class="btn" data-act="copycfg"' + (cfg ? '' : ' disabled') + '>3. Copy CONFIG</button>' +
+    '<button class="btn ghost" data-act="testnotif">Send a test notification</button>' +
     (cfg ? '<label>CONFIG</label><textarea id="cfgBox" readonly>' + esc(cfg) + '</textarea>' : '') +
-    '<div class="note">CONFIG کلیلی تایبەتی تێدایە. تەنیا لە GitHub Secret دایبنێ و لەگەڵ کەس هاوبەشی مەکە.</div></div>';
-  h += '<div class="card"><h3>داتا</h3><div class="small mute">پێشکەوتنەکانت تەنیا لەسەر ئەم مۆبایلە پاشەکەوت دەکرێن.</div>' +
-    '<button class="btn ghost" data-act="reset" style="color:var(--bad)">سڕینەوەی هەموو پێشکەوتنەکان</button></div>';
+    '<div class="note">CONFIG contains a private key. Only paste it into a GitHub secret and don\'t share it.</div></div>';
+  h += '<div class="card"><h3>Table images</h3><div class="small mute">' +
+    (S.tables ? '<b>' + S.tables + ' tables</b> saved on this phone.' : 'Not imported yet. Import the <b>hemequiz-tables.json</b> file once to see the original table after each answer.') + '</div>' +
+    '<input type="file" id="tblFile" accept=".json,application/json" hidden>' +
+    '<button class="btn" data-act="importtbl">' + (S.tables ? 'Re-import tables file' : 'Import tables file') + '</button>' +
+    (S.tables ? '<button class="btn ghost" data-act="cleartbl">Remove table images</button>' : '') + '</div>';
+  h += '<div class="card"><h3>Data</h3><div class="small mute">Your progress is saved only on this phone.</div>' +
+    '<button class="btn ghost" data-act="reset" style="color:var(--bad)">Reset all progress</button></div>';
   return h;
 }
 function nav() {
-  var items = [['home', 'سەرەکی', ICON.home], ['stats', 'ئامار', ICON.stats], ['settings', 'ڕێکخستن', ICON.set]];
+  var items = [['home', 'Home', ICON.home], ['stats', 'Stats', ICON.stats], ['settings', 'Settings', ICON.set]];
   return '<nav class="tabs"><div class="in">' + items.map(function (it) { return '<button class="' + (view === it[0] ? 'on' : '') + '" data-act="tab" data-v="' + it[0] + '">' + it[2] + '<span>' + it[1] + '</span></button>'; }).join('') + '</div></nav>';
 }
 function render() {
@@ -246,19 +253,72 @@ async function genKeys() {
   S.keys = { pub: b64u(pub), priv: jwk.d }; S.sub = null; save();
 }
 async function subscribe() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) { toast('ئەم براوزەرە push پشتگیری ناکات'); return; }
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) { toast('This browser does not support push'); return; }
   var p = await Notification.requestPermission();
-  if (p !== 'granted') { toast('مۆڵەت نەدرا'); render(); return; }
+  if (p !== 'granted') { toast('Permission was not granted'); render(); return; }
   var reg = await navigator.serviceWorker.ready;
   var sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: fromB64u(S.keys.pub) });
-  S.sub = sub.toJSON(); save(); toast('نۆتفیکەیشن چالاک کرا ✓'); render();
+  S.sub = sub.toJSON(); save(); toast('Notifications enabled ✓'); render();
 }
 async function testNotif() {
-  if (!('Notification' in window) || Notification.permission !== 'granted') { toast('سەرەتا مۆڵەت بدە'); return; }
+  if (!('Notification' in window) || Notification.permission !== 'granted') { toast('Allow notifications first'); return; }
   var q = C.pickForSlot(QB, S.start, today(), new Date().getHours(), S.from);
   var reg = await navigator.serviceWorker.ready;
   reg.showNotification('Hematology quiz · CH ' + q.ch, { body: q.q, icon: 'icon-192.png', badge: 'badge-96.png', tag: 'hq', data: { id: q.id } });
 }
+
+/* ---------- table images (IndexedDB, stay on this device) ---------- */
+var TDB = null;
+function tdb() {
+  return TDB || (TDB = new Promise(function (res, rej) {
+    var r = indexedDB.open('hq-tables', 1);
+    r.onupgradeneeded = function () { r.result.createObjectStore('img'); };
+    r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); };
+  }));
+}
+function tget(id) {
+  return tdb().then(function (db) { return new Promise(function (res, rej) {
+    var q = db.transaction('img').objectStore('img').get(id); q.onsuccess = function () { res(q.result); }; q.onerror = function () { rej(q.error); };
+  }); });
+}
+function twrite(map) { // map: id -> Blob, or null to clear
+  return tdb().then(function (db) { return new Promise(function (res, rej) {
+    var tx = db.transaction('img', 'readwrite'), st = tx.objectStore('img'); st.clear();
+    if (map) Object.keys(map).forEach(function (k) { st.put(map[k], k); });
+    tx.oncomplete = function () { res(); }; tx.onerror = function () { rej(tx.error); };
+  }); });
+}
+async function importTables(file) {
+  toast('Importing tables…');
+  var data = JSON.parse(await file.text());
+  if (!data || data.format !== 'hemequiz-tables' || !data.tables) throw new Error('This is not the tables file');
+  var map = {}, ids = Object.keys(data.tables);
+  for (var i = 0; i < ids.length; i++) map[ids[i]] = await (await fetch(data.tables[ids[i]])).blob();
+  await twrite(map);
+  S.tables = ids.length; save(); render(); toast(ids.length + ' tables imported ✓');
+}
+var modalUrl = null;
+function closeModal(fromPop) {
+  var m = $('.modal'); if (!m) return;
+  m.remove(); if (modalUrl) { URL.revokeObjectURL(modalUrl); modalUrl = null; }
+  document.body.style.overflow = '';
+  if (!fromPop && history.state && history.state.hqModal) history.back();
+}
+function showTable(id) {
+  tget(id).catch(function () { return null; }).then(function (blob) {
+    var body;
+    if (blob) { modalUrl = URL.createObjectURL(blob); body = '<img src="' + modalUrl + '" alt="Table ' + esc(id) + '">'; }
+    else body = '<div class="mempty">Table images are not on this phone yet.<br><br>Go to <b>Settings → Table images → Import tables file</b> and choose <b>hemequiz-tables.json</b>.</div>';
+    var m = document.createElement('div'); m.className = 'modal';
+    m.innerHTML = '<div class="mbar"><b>Table ' + esc(id) + '</b><span>' + (blob ? '<button data-act="zoom">Zoom</button>' : '') + '<button data-act="closetbl" aria-label="Close">✕</button></span></div><div class="mbody">' + body + '</div>';
+    document.body.appendChild(m); document.body.style.overflow = 'hidden';
+    try { history.pushState({ hqModal: 1 }, ''); } catch (e) {}
+  });
+}
+window.addEventListener('popstate', function () { closeModal(true); });
+document.addEventListener('change', function (e) {
+  if (e.target.id === 'tblFile' && e.target.files[0]) importTables(e.target.files[0]).catch(function (err) { toast('Import failed: ' + err.message); });
+});
 
 /* ---------- events ---------- */
 document.addEventListener('click', function (e) {
@@ -266,31 +326,36 @@ document.addEventListener('click', function (e) {
   var a = t.dataset.act;
   if (a === 'tab') { view = t.dataset.v; render(); window.scrollTo(0, 0); }
   else if (a === 'home') { view = 'home'; render(); }
-  else if (a === 'session') startQuiz(buildSession(SESSION_N), 'کوێزی ئەمڕۆ');
-  else if (a === 'due') startQuiz(C.shuffle(dueIds(), Math.random).slice(0, 20), 'دووبارەکردنەوە');
+  else if (a === 'session') startQuiz(buildSession(SESSION_N), 'Today\'s quiz');
+  else if (a === 'due') startQuiz(C.shuffle(dueIds(), Math.random).slice(0, 20), 'Review');
   else if (a === 'chall') { var ch = +t.dataset.ch; startQuiz(C.shuffle((BYCH[ch] || []).map(function (q) { return q.id; }), Math.random), 'Chapter ' + ch); }
   else if (a === 'opt') onAnswer(+t.dataset.i);
   else if (a === 'rate') onRate(t.dataset.k);
   else if (a === 'next') onNext();
-  else if (a === 'quit') { if (quiz && quiz.i > 0 && !confirm('کوێزەکە دابخەم؟')) return; view = 'home'; render(); }
+  else if (a === 'quit') { if (quiz && quiz.i > 0 && !confirm('Quit this quiz?')) return; view = 'home'; render(); }
   else if (a === 'saveset') {
     var chosen = +$('#setCh').value, st = $('#setStart').value || today();
     if (chosen !== todayCh()) { var d = new Date(); d.setDate(d.getDate() - (chosen - 1)); st = isoOf(d); }
     S.start = st; S.from = +$('#setFrom').value; S.to = +$('#setTo').value; if (S.to < S.from) S.to = S.from;
-    save(); toast('پاشەکەوت کرا ✓'); render();
+    save(); toast('Saved ✓'); render();
   }
-  else if (a === 'genkeys') { genKeys().then(function () { toast('کلیلەکان دروست کران ✓'); render(); }).catch(function () { toast('هەڵە لە دروستکردنی کلیل'); }); }
-  else if (a === 'subscribe') { subscribe().catch(function (err) { toast('هەڵە: ' + err.message); }); }
+  else if (a === 'genkeys') { genKeys().then(function () { toast('Keys generated ✓'); render(); }).catch(function () { toast('Could not generate keys'); }); }
+  else if (a === 'subscribe') { subscribe().catch(function (err) { toast('Error: ' + err.message); }); }
   else if (a === 'copycfg') {
     var txt = JSON.stringify(makeConfig());
-    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () { toast('کۆپی کرا ✓'); }, function () { var b = $('#cfgBox'); if (b) { b.select(); document.execCommand('copy'); toast('کۆپی کرا ✓'); } });
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () { toast('Copied ✓'); }, function () { var b = $('#cfgBox'); if (b) { b.select(); document.execCommand('copy'); toast('Copied ✓'); } });
   }
   else if (a === 'testnotif') testNotif();
-  else if (a === 'reset') { if (confirm('هەموو پێشکەوتنەکان دەسڕدرێنەوە. دڵنیایت؟')) { S.cards = {}; S.log = {}; save(); render(); toast('سڕایەوە'); } }
+  else if (a === 'table') showTable(t.dataset.t);
+  else if (a === 'closetbl') closeModal(false);
+  else if (a === 'zoom') { var mb = $('.mbody'); mb.classList.toggle('z'); t.textContent = mb.classList.contains('z') ? 'Fit' : 'Zoom'; }
+  else if (a === 'importtbl') $('#tblFile').click();
+  else if (a === 'cleartbl') { if (confirm('Remove table images from this phone?')) twrite(null).then(function () { S.tables = 0; save(); render(); toast('Removed'); }); }
+  else if (a === 'reset') { if (confirm('All progress will be erased. Are you sure?')) { S.cards = {}; S.log = {}; save(); render(); toast('Progress reset'); } }
 });
 
 /* ---------- boot ---------- */
-function openId(id) { if (BYID[id]) startQuiz([id], 'پرسیاری نۆتفیکەیشن', true); }
+function openId(id) { if (BYID[id]) startQuiz([id], 'Notification question', true); }
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function () {});
   navigator.serviceWorker.addEventListener('message', function (e) { if (e.data && e.data.type === 'open-q') openId(e.data.id); });
