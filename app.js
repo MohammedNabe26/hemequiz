@@ -73,17 +73,43 @@ function buildSession(n) {
   }
   return C.shuffle(ids, Math.random);
 }
-function startQuiz(ids, title, single) {
+function startQuiz(ids, title, single, key) {
   if (!ids.length) { toast('No questions here'); return; }
-  quiz = { queue: ids.slice(), i: 0, first: {}, wrong: [], title: title, single: !!single, cur: null };
+  quiz = { queue: ids.slice(), i: 0, first: {}, wrong: [], title: title, single: !!single, cur: null, key: key || null };
   view = 'quiz'; nextQ();
 }
+/* ---------- saved sessions: continue where you stopped ---------- */
+function todayKey() { return 'today:' + today(); }
+function saved(key) { var s = S.sess && S.sess[key]; return s && s.i < s.queue.length ? s : null; }
+function persist() {
+  if (!quiz || !quiz.key) return;
+  S.sess = S.sess || {};
+  Object.keys(S.sess).forEach(function (k) { if (k.indexOf('today:') === 0 && k !== todayKey()) delete S.sess[k]; });
+  var resumeAt = quiz.cur && quiz.cur.chosen !== null ? quiz.i + 1 : quiz.i; // an answered question is not asked again
+  if (resumeAt >= quiz.queue.length) delete S.sess[quiz.key];
+  else S.sess[quiz.key] = { queue: quiz.queue, i: resumeAt, first: quiz.first, wrong: quiz.wrong, title: quiz.title };
+  save();
+}
+function resumeOrStart(key, makeIds, title) {
+  var s = saved(key);
+  if (!s) { startQuiz(makeIds(), title, false, key); return; }
+  quiz = { queue: s.queue.slice(), i: s.i, first: s.first || {}, wrong: s.wrong || [], title: s.title, single: false, cur: null, key: key };
+  view = 'quiz'; nextQ(); toast('Continuing from question ' + (s.i + 1));
+}
+function chapterIds(ch) { return C.shuffle((BYCH[ch] || []).map(function (q) { return q.id; }), Math.random); }
+function makerFor(key) {
+  if (key.indexOf('ch:') === 0) { var ch = +key.slice(3); return function () { return chapterIds(ch); }; }
+  return function () { return buildSession(SESSION_N); };
+}
 function nextQ() {
-  if (quiz.i >= quiz.queue.length) { view = 'done'; render(); return; }
+  if (quiz.i >= quiz.queue.length) {
+    if (quiz.key && S.sess) { delete S.sess[quiz.key]; save(); }
+    view = 'done'; render(); return;
+  }
   var q = BYID[quiz.queue[quiz.i]];
   var opts = C.shuffle([{ t: q.a, ok: true }].concat(q.w.map(function (t) { return { t: t, ok: false }; })), Math.random);
   quiz.cur = { q: q, opts: opts, chosen: null, rated: false };
-  render(); window.scrollTo(0, 0);
+  persist(); render(); window.scrollTo(0, 0);
 }
 function onAnswer(idx) {
   var cur = quiz.cur; if (cur.chosen !== null) return;
@@ -100,7 +126,7 @@ function onAnswer(idx) {
     if (!ok) { quiz.wrong.push(q.id); }
   }
   if (!ok && quiz.queue.indexOf(q.id, quiz.i + 1) < 0) quiz.queue.push(q.id); // see it again at the end
-  save(); render();
+  save(); persist(); render();
 }
 function onRate(kind) { // 'easy' | 'hard' (only after correct first try)
   var cur = quiz.cur; if (cur.rated) return; cur.rated = true;
@@ -128,14 +154,15 @@ function vHome() {
     '<div class="stats"><div class="stat"><b>' + list.length + '</b><span>Questions</span></div>' +
     '<div class="stat"><b>' + seen + '</b><span>Seen</span></div>' +
     '<div class="stat"><b>' + tl.n + '</b><span>Answered today</span></div></div>' +
-    '<button class="btn primary" data-act="session">Start today\'s quiz (' + SESSION_N + ' questions)</button>' +
+    (function () { var s = saved(todayKey()); return '<button class="btn primary" data-act="session">' + (s ? 'Continue today\'s quiz (' + (s.i + 1) + '/' + s.queue.length + ')' : 'Start today\'s quiz (' + SESSION_N + ' questions)') + '</button>'; })() +
     '<div class="row"><button class="btn" data-act="due"' + (due ? '' : ' disabled') + '>Review due (' + due + ')</button>' +
-    '<button class="btn" data-act="chall" data-ch="' + ch + '">Whole chapter (' + list.length + ')</button></div></div>';
+    '<button class="btn" data-act="chall" data-ch="' + ch + '">' + (saved('ch:' + ch) ? 'Continue chapter (' + (saved('ch:' + ch).i + 1) + '/' + saved('ch:' + ch).queue.length + ')' : 'Whole chapter (' + list.length + ')') + '</button></div></div>';
   h += '<h3 style="margin:18px 2px 10px">All chapters</h3><div class="grid">';
   for (var c = 1; c <= C.NCH; c++) {
     var L = BYCH[c] || [], sn = L.filter(function (q) { return S.cards[q.id] && S.cards[q.id].s > 0; }).length;
     h += '<button class="ch' + (c === ch ? ' now' : '') + '" data-act="chall" data-ch="' + c + '"><span class="n">CH ' + c + '</span><span class="t">' + esc(C.CHAPTERS[c]) + '</span>' +
-      '<div class="bar"><i style="width:' + Math.round(100 * sn / L.length) + '%"></i></div><span class="small mute en">' + sn + ' / ' + L.length + '</span></button>';
+      '<div class="bar"><i style="width:' + Math.round(100 * sn / L.length) + '%"></i></div><span class="small mute en">' + sn + ' / ' + L.length +
+      (saved('ch:' + c) ? ' · <b class="resume">▶ Q' + (saved('ch:' + c).i + 1) + '</b>' : '') + '</span></button>';
   }
   return h + '</div>';
 }
@@ -143,7 +170,8 @@ function vQuiz() {
   var cur = quiz.cur, q = cur.q, total = quiz.queue.length, answered = cur.chosen !== null;
   var h = '<div class="qhead"><button class="x" data-act="quit" aria-label="Close">✕</button>' +
     '<div class="prog"><div class="bar"><i style="width:' + Math.round(100 * quiz.i / total) + '%"></i></div></div>' +
-    '<span class="small mute en">' + (quiz.i + 1) + '/' + total + '</span></div>' +
+    '<span class="small mute en">' + (quiz.i + 1) + '/' + total + '</span>' +
+    (quiz.key ? '<button class="x" data-act="restart" aria-label="Restart" title="Restart">↺</button>' : '') + '</div>' +
     '<div class="card"><span class="tag">CH ' + q.ch + ' · Table ' + esc(q.tbl) + '</span>' +
     '<div class="qtext en">' + esc(q.q) + '</div>';
   var L = 'ABCD';
@@ -173,7 +201,7 @@ function vDone() {
     h += '<h3 style="margin:18px 0 4px">Your mistakes</h3>';
     quiz.wrong.forEach(function (id) { var q = BYID[id]; h += '<div class="miss en"><div>' + esc(q.q) + '</div><div class="a">' + esc(q.a) + '</div></div>'; });
   }
-  if (!quiz.single) h += '<button class="btn primary" data-act="session">Another 10 questions</button>';
+  if (!quiz.single) h += '<button class="btn primary" data-act="newsession">Another 10 questions</button>';
   else h += '<button class="btn primary" data-act="session">Continue with today\'s quiz</button>';
   return h + '<button class="btn" data-act="home">Back to home</button></div>';
 }
@@ -326,13 +354,15 @@ document.addEventListener('click', function (e) {
   var a = t.dataset.act;
   if (a === 'tab') { view = t.dataset.v; render(); window.scrollTo(0, 0); }
   else if (a === 'home') { view = 'home'; render(); }
-  else if (a === 'session') startQuiz(buildSession(SESSION_N), 'Today\'s quiz');
+  else if (a === 'session') resumeOrStart(todayKey(), makerFor(todayKey()), 'Today\'s quiz');
+  else if (a === 'newsession') startQuiz(buildSession(SESSION_N), 'Today\'s quiz', false, todayKey());
+  else if (a === 'restart') { if (!confirm('Start this session again from question 1?')) return; startQuiz(makerFor(quiz.key)(), quiz.title, false, quiz.key); toast('Restarted'); }
   else if (a === 'due') startQuiz(C.shuffle(dueIds(), Math.random).slice(0, 20), 'Review');
-  else if (a === 'chall') { var ch = +t.dataset.ch; startQuiz(C.shuffle((BYCH[ch] || []).map(function (q) { return q.id; }), Math.random), 'Chapter ' + ch); }
+  else if (a === 'chall') { var ch = +t.dataset.ch; resumeOrStart('ch:' + ch, makerFor('ch:' + ch), 'Chapter ' + ch); }
   else if (a === 'opt') onAnswer(+t.dataset.i);
   else if (a === 'rate') onRate(t.dataset.k);
   else if (a === 'next') onNext();
-  else if (a === 'quit') { if (quiz && quiz.i > 0 && !confirm('Quit this quiz?')) return; view = 'home'; render(); }
+  else if (a === 'quit') { if (quiz && !quiz.key && quiz.i > 0 && !confirm('Quit this quiz?')) return; if (quiz && quiz.key) persist(); view = 'home'; render(); }
   else if (a === 'saveset') {
     var chosen = +$('#setCh').value, st = $('#setStart').value || today();
     if (chosen !== todayCh()) { var d = new Date(); d.setDate(d.getDate() - (chosen - 1)); st = isoOf(d); }
