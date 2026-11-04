@@ -5,6 +5,7 @@ var QB = C.expand(window.QB);
 var BYID = {}; QB.forEach(function (q) { BYID[q.id] = q; });
 var BYCH = {}; QB.forEach(function (q) { (BYCH[q.ch] = BYCH[q.ch] || []).push(q); });
 var KEY = 'hq.v1';
+var APP_VERSION = '2026.11.04.6'; // must match version.json when publishing
 var INTERVAL = [0, 1, 3, 7, 14, 30]; // days per Leitner box
 var SESSION_N = 10;
 
@@ -393,5 +394,38 @@ if ('serviceWorker' in navigator) {
 render();
 var qp = new URLSearchParams(location.search).get('q');
 if (qp) { openId(qp); try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+/* ---------- update alerts ---------- */
+function updateBanner(info) {
+  if ($('.upd')) return;
+  var el = document.createElement('div'); el.className = 'upd';
+  el.innerHTML = '<div><b>Update available</b><div class="small">' + esc(info.notes || 'A new version of the app is ready.') + '</div></div>' +
+    '<button data-act="doupdate">Update</button><button class="later" data-act="later" aria-label="Later">✕</button>';
+  document.body.appendChild(el);
+}
+function checkUpdate() {
+  if (!navigator.onLine) return;
+  fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (info) {
+    if (info && info.v && info.v !== APP_VERSION) updateBanner(info);
+  }).catch(function () {});
+}
+async function doUpdate() {
+  var el = $('.upd'); if (el) el.innerHTML = '<div><b>Updating…</b></div>';
+  try { var reg = await navigator.serviceWorker.getRegistration(); if (reg) await reg.update(); } catch (e) {}
+  try { var ks = await caches.keys(); await Promise.all(ks.map(function (k) { return caches.delete(k); })); } catch (e) {}
+  location.reload();
+}
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('[data-act]'); if (!t) return;
+  if (t.dataset.act === 'doupdate') doUpdate();
+  else if (t.dataset.act === 'later') { var el = $('.upd'); if (el) el.remove(); }
+});
+// after an update: show what's new once
+(function () {
+  if (S.ver && S.ver !== APP_VERSION) fetch('version.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (i) { toast('Updated ✓ ' + (i.notes || '')); }).catch(function () {});
+  S.ver = APP_VERSION; save();
+})();
+setTimeout(checkUpdate, 1500);
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkUpdate(); });
+setInterval(checkUpdate, 30 * 60 * 1000);
 window.__hq = { QB: QB, S: function () { return S; } };
 })();

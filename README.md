@@ -21,3 +21,6 @@ In the app go to **Settings → Table images → Import tables file** and choose
 - Progress is stored in the browser on your phone. Clearing Chrome's site data erases it.
 - To edit questions, change `data/*.js` and run `node build.js` to regenerate `questions.js`.
 - About 70% of notification questions come from today's chapter and 30% from earlier chapters.
+
+## Publishing an update
+Bump `APP_VERSION` at the top of `app.js` **and** `"v"` in `version.json` to the same new value, and write a short `notes` line. Open apps will show an **Update available** banner within ~30 minutes, or the next time the app is opened.
