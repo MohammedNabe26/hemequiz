@@ -1,0 +1,18 @@
+{
+  "name": "Hematology Quiz",
+  "short_name": "HemeQuiz",
+  "description": "Daily hematology MCQ practice with spaced repetition",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f3ef",
+  "theme_color": "#b42a2f",
+  "lang": "ckb",
+  "dir": "rtl",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
