@@ -1,4 +1,4 @@
-const VERSION = 'hq-v4';
+const VERSION = 'hq-v5';
 const SHELL = ['./', 'index.html', 'style.css', 'core.js', 'questions.js', 'app.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'badge-96.png'];
 
 self.addEventListener('install', e => {
@@ -7,14 +7,18 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
-// stale-while-revalidate for same-origin GET
+// network-first (fresh updates when online), cache fallback when offline
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
   e.respondWith(caches.open(VERSION).then(async c => {
-    const hit = await c.match(r, { ignoreSearch: true });
-    const net = fetch(r).then(res => { if (res.ok) c.put(r, res.clone()); return res; }).catch(() => hit);
-    return hit || net;
+    try {
+      const res = await fetch(r, { cache: 'no-cache' });
+      if (res.ok) c.put(r, res.clone());
+      return res;
+    } catch (_) {
+      return (await c.match(r, { ignoreSearch: true })) || (await c.match('./')) || Response.error();
+    }
   }));
 });
 
