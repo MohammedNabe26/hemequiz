@@ -1,0 +1,21 @@
+name: hourly-question
+on:
+  schedule:
+    - cron: '5 * * * *'     # every hour at minute 05 (GitHub may delay a few minutes)
+  workflow_dispatch:         # lets you run it manually to test
+    inputs:
+      force:
+        description: 'Send even outside active hours (1 = yes)'
+        default: '1'
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install --prefix push
+      - run: node push/send.js
+        env:
+          HEMEQUIZ_CONFIG: ${{ secrets.HEMEQUIZ_CONFIG }}
+          FORCE: ${{ github.event.inputs.force }}
