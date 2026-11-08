@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pediatrics MCQ</title>
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Peds MCQ">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#f6f7f5;--card:#fff;--ink:#17201d;--mut:#5d6b66;--line:#e2e6e3;--acc:#0f766e;--acc2:#e6f3f1;--ok:#15803d;--okb:#e8f6ec;--bad:#b91c1c;--badb:#fdecec;--warn:#a16207}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1413;--card:#18201e;--ink:#e7ecea;--mut:#9aa8a3;--line:#2a3431;--acc:#2dd4bf;--acc2:#12302c;--ok:#4ade80;--okb:#12301d;--bad:#f87171;--badb:#3a1616;--warn:#facc15}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.wrap{max-width:680px;margin:0 auto;padding:12px 14px 96px}
+header{display:flex;align-items:center;gap:10px;padding:6px 0 12px}
+header h1{font-size:19px;margin:0;flex:1;letter-spacing:-.2px}
+.iconbtn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:7px 11px;font-size:14px;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--mut)}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;background:var(--acc)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;background:var(--acc);color:#fff;margin-top:10px}
+@media (prefers-color-scheme:dark){.btn{color:#062a26}}
+.btn.sec{background:var(--acc2);color:var(--acc)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut);margin-bottom:8px}
+.stem{font-size:17px;font-weight:550;white-space:pre-line;margin:0 0 14px}
+.opt{display:flex;gap:10px;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:12px;margin-bottom:8px;font-size:15.5px;cursor:pointer;line-height:1.4}
+.opt .l{flex:0 0 26px;height:26px;border-radius:50%;background:var(--acc2);color:var(--acc);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.opt.ok{border-color:var(--ok);background:var(--okb)}.opt.ok .l{background:var(--ok);color:#fff}
+.opt.bad{border-color:var(--bad);background:var(--badb)}.opt.bad .l{background:var(--bad);color:#fff}
+.opt:disabled{cursor:default;opacity:1}
+.verdict{font-weight:700;font-size:17px;margin:4px 0 6px}
+.verdict.ok{color:var(--ok)}.verdict.bad{color:var(--bad)}
+.exp{white-space:pre-line;font-size:15px;line-height:1.55}
+.tag{display:inline-block;font-size:12px;padding:2px 9px;border-radius:20px;background:var(--acc2);color:var(--acc);font-weight:600}
+.muted{color:var(--mut);font-size:14px}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+.nav .in{max-width:680px;margin:0 auto;display:flex;gap:8px}
+.nav button{flex:1;margin:0}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+input,textarea,select{width:100%;font:inherit;font-size:16px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+textarea{min-height:84px;font-size:13px;font-family:ui-monospace,Menlo,monospace}
+h2{font-size:17px;margin:0 0 6px}
+.list a{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;cursor:pointer}
+.list a:last-child{border:0}
+.now{border-color:var(--acc);background:var(--acc2)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+.hide{display:none!important}
+ol.steps{padding-left:20px;margin:6px 0}ol.steps li{margin:4px 0;font-size:14.5px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="nav hide" id="nav"><div class="in">
+  <button class="btn ghost" id="prevB">‹ Prev</button>
+  <button class="btn sec" id="homeB">Home</button>
+  <button class="btn" id="nextB">Next ›</button>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){var K='pedsmcq_data';
+try{var r=localStorage.getItem(K);if(r){window.MCQ=JSON.parse(r);return}}catch(e){}
+document.addEventListener('DOMContentLoaded',function(){
+ var a=document.getElementById('app');
+ a.innerHTML='<header><h1>Pediatrics MCQ</h1></header><div class="card"><h2>Load the questions (once per phone)</h2><p class="muted">The book questions are not stored on the public website. Choose the file <b>peds-mcq-data.json</b> that you saved from the chat (or that your friend sent you). It stays only on this phone.</p><label>Questions file</label><input type="file" id="df" accept=".json,application/json"><p class="muted" id="dm"></p></div>';
+ document.getElementById('df').onchange=function(ev){var f=ev.target.files[0];if(!f)return;var rd=new FileReader();
+  rd.onload=function(){try{var d=JSON.parse(rd.result);if(!d.q||!d.t||!d.q.length)throw 0;localStorage.setItem(K,rd.result);location.reload()}
+   catch(e){document.getElementById('dm').textContent='This is not the right file, or the phone ran out of storage.'}};rd.readAsText(f)};
+});})();
+</script>
+<script>
+(function(){
+if(!window.MCQ)return;
+const D=window.MCQ, N=D.q.length, L='ABCDEF', KEY='pedsmcq_v1';
+const $=s=>document.querySelector(s), app=$('#app');
+let S={ans:{},pos:0,sched:null,friend:null,name:''};
+try{const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r));}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
+let cap={dl:null,sample:null};
+if(window.claude&&claude.use){claude.use('downloads').then(x=>{cap.dl=x}).catch(()=>{});claude.use('sample').then(x=>{cap.sample=x;if(view==='q')renderQ()}).catch(()=>{});}
+
+// queue = list of positions being studied; default full fixed sequence
+let queue=null, qi=0, view='home', qname='All questions';
+const isOk=p=>S.ans[p]!==undefined && S.ans[p]===D.q[p][4];
+function stats(){let a=0,c=0;for(const k in S.ans){a++;if(isOk(+k))c++}return{a,c}}
+function nextUnanswered(from){for(let i=0;i<N;i++){const p=(from+i)%N;if(S.ans[p]===undefined)return p}return from}
+
+/* ---------- schedule (30-min notifications) ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const hm=m=>pad(Math.floor(m/60))+':'+pad(m%60);
+const toMin=s=>{const[a,b]=s.split(':').map(Number);return a*60+(b||0)};
+function slots(sc){ // returns [{t:Date,p:pos}]
+  const out=[];const [y,mo,d]=sc.d.split('-').map(Number);let k=0;
+  for(let day=0;day<sc.n;day++)for(let m=sc.f;m<=sc.t;m+=sc.e){out.push({t:new Date(y,mo-1,d+day,0,m),p:(sc.q+k)%N});k++}
+  return out}
+function nowSlot(sc){const s=slots(sc),now=Date.now();let cur=null,next=null;for(const x of s){if(x.t.getTime()<=now)cur=x;else{next=x;break}}return{cur,next,last:s[s.length-1]}}
+const pairCode=sc=>'PEDS-'+[sc.d.replace(/-/g,''),sc.f,sc.t,sc.e,sc.q+1,sc.n].join('-');
+function parsePair(c){const m=String(c).trim().toUpperCase().match(/^PEDS-(\d{8})-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)$/);if(!m)return null;
+  return{d:m[1].slice(0,4)+'-'+m[1].slice(4,6)+'-'+m[1].slice(6),f:+m[2],t:+m[3],e:+m[4],q:+m[5]-1,n:+m[6]}}
+function icsEsc(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n')}
+function fold(line){const out=[];let s=line;while(s.length>72){out.push(s.slice(0,72));s=' '+s.slice(72)}out.push(s);return out.join('\r\n')}
+const utc=d=>d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+'00Z';
+function buildICS(sc,link){
+  const L2=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//PedsMCQ//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Peds MCQ','X-WR-CALDESC:'+icsEsc('Pair code '+pairCode(sc))];
+  const stamp=utc(new Date());
+  for(const x of slots(sc)){const q=D.q[x.p],no=x.p+1;
+    const desc=q[2]+'\n\n'+q[3].map((o,i)=>L[i]+'. '+o).join('\n')+'\n\nOpen the app and go to Q'+no+(link?'\n'+link+'?q='+no:'');
+    const end=new Date(x.t.getTime()+5*60000);
+    L2.push('BEGIN:VEVENT','UID:pedsmcq-'+sc.d+'-'+utc(x.t)+'-'+no+'@pedsmcq','DTSTAMP:'+stamp,'DTSTART:'+utc(x.t),'DTEND:'+utc(end),
+      fold('SUMMARY:'+icsEsc('Q'+no+': '+(q[2].length>90?q[2].slice(0,88)+'…':q[2]))),fold('DESCRIPTION:'+icsEsc(desc)));
+    if(link)L2.push(fold('URL:'+link+'?q='+no));
+    L2.push('TRANSP:TRANSPARENT','BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc('Q'+no),'TRIGGER:PT0S','END:VALARM','END:VEVENT')}
+  L2.push('END:VCALENDAR');return L2.join('\r\n')}
+async function deliverFile(name,text,mime){
+  if(cap.dl){try{await cap.dl.save({filename:name,data:new Blob([text],{type:mime})});return}catch(e){toast('Download was declined');return}}
+  const file=new File([text],name,{type:mime});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
+async function copy(t){try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Copied')}catch(_){toast('Select and copy manually')}ta.remove()}}
+
+/* ---------- study-together result codes ---------- */
+function myCode(){const b=new Uint8Array(Math.ceil(N/4));for(let p=0;p<N;p++){const v=S.ans[p]===undefined?0:(isOk(p)?1:2);b[p>>2]|=v<<((p&3)*2)}
+  let s='';b.forEach(x=>s+=String.fromCharCode(x));return 'R1.'+encodeURIComponent((S.name||'Friend').slice(0,20))+'.'+btoa(s)}
+function readCode(c){const m=String(c).trim().match(/^R1\.([^.]*)\.([A-Za-z0-9+/=]+)$/);if(!m)return null;let s;try{s=atob(m[2])}catch(e){return null}
+  const r=new Uint8Array(N);for(let p=0;p<N;p++){r[p]=(s.charCodeAt(p>>2)>>((p&3)*2))&3}return{name:decodeURIComponent(m[1]),r:Array.from(r)}}
+
+/* ---------- views ---------- */
+function setNav(on){$('#nav').classList.toggle('hide',!on)}
+function home(){view='home';setNav(false);queue=null;qname='All questions';
+  const {a,c}=stats(),pct=a?Math.round(c*100/a):0,nx=nextUnanswered(S.pos);
+  const wrong=Object.keys(S.ans).filter(k=>!isOk(+k)).length;
+  let nowHtml='';
+  if(S.sched){const ns=nowSlot(S.sched);
+    if(ns.cur&&Date.now()-ns.cur.t<S.sched.e*60000+3600000) nowHtml=`<div class="card now"><div class="muted">Scheduled question now</div><h2>Q${ns.cur.p+1}</h2>${ns.next?`<div class="muted">Next: Q${ns.next.p+1} at ${hm(ns.next.t.getHours()*60+ns.next.t.getMinutes())}</div>`:''}<button class="btn" data-go="${ns.cur.p}">Open Q${ns.cur.p+1}</button></div>`;
+    else if(ns.next) nowHtml=`<div class="card"><div class="muted">Next scheduled question</div><h2>Q${ns.next.p+1} · ${ns.next.t.toLocaleString([], {weekday:'short',hour:'2-digit',minute:'2-digit'})}</h2></div>`}
+  app.innerHTML=`<header><h1>Pediatrics MCQ</h1><button class="iconbtn" id="goB">Go to #</button></header>
+  ${nowHtml}
+  <div class="card"><div class="stats"><div><b>${a}</b><span>answered / ${N}</span></div><div><b>${c}</b><span>correct</span></div><div><b>${pct}%</b><span>score</span></div></div>
+  <div class="bar"><i style="width:${a*100/N}%"></i></div>
+  <button class="btn" id="contB">${a?'Continue':'Start'} · Q${nx+1}</button>
+  <div class="row"><button class="btn sec" id="wrongB" ${wrong?'':'disabled'}>Review wrong (${wrong})</button></div></div>
+  <div class="card"><h2>🔔 Notifications every 30 min</h2><p class="muted">${S.sched?`Active from ${S.sched.d}, ${hm(S.sched.f)}–${hm(S.sched.t)}, every ${S.sched.e} min, ${S.sched.n} days.<br>Pair code: <b>${pairCode(S.sched)}</b>`:'Not set up yet. Works on iPhone and Android through your phone calendar.'}</p>
+  <button class="btn sec" id="schB">${S.sched?'Edit / re-download':'Set up notifications'}</button></div>
+  <div class="card"><h2>👥 Study together</h2><p class="muted">You and your friend get the same questions in the same order. Share your results code to compare.</p>
+  ${S.friend?`<p>${esc(S.friend.name)}: <b>${S.friend.r.filter(v=>v===1).length}</b> correct of <b>${S.friend.r.filter(v=>v).length}</b> answered</p>`:''}
+  <button class="btn sec" id="togB">Compare with friend</button></div>
+  <p class="muted" style="text-align:center">${N} questions · 34 systems mixed in one fixed order</p>`;
+  $('#contB').onclick=()=>openQ(nx);
+  $('#wrongB').onclick=()=>{const l=Object.keys(S.ans).map(Number).filter(p=>!isOk(p)).sort((a,b)=>a-b);startQueue(l,'Wrong answers')};
+  $('#schB').onclick=schedView;$('#togB').onclick=togetherView;
+  $('#goB').onclick=goView;
+  app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>openQ(+b.dataset.go));
+  scrollTo(0,0)}
+function goView(){view='go';setNav(false);
+  app.innerHTML=`<header><h1>Go to question</h1><button class="iconbtn" id="bk">Close</button></header><div class="card"><label>Question number (1–${N})</label><input id="gn" type="number" inputmode="numeric" min="1" max="${N}" value="${S.pos+1}"><button class="btn" id="gg">Open</button></div>`;
+  $('#bk').onclick=home;$('#gg').onclick=()=>{const v=+$('#gn').value;if(v>=1&&v<=N)openQ(v-1);else toast('1 to '+N)}}
+function startQueue(list,name){if(!list.length){toast('Nothing here');return}queue=list;qi=0;qname=name;view='q';renderQ()}
+function openQ(p){queue=null;qname='All questions';S.pos=p;save();view='q';renderQ()}
+function curPos(){return queue?queue[qi]:S.pos}
+let aiCache={};
+function renderQ(){setNav(true);const p=curPos(),q=D.q[p],ch=S.ans[p],done=ch!==undefined;
+  const okk=q[4];
+  let h=`<div class="meta"><span>${queue?esc(qname)+' · '+(qi+1)+'/'+queue.length:'Q'+(p+1)+' of '+N}</span><span>${queue?'Q'+(p+1):''}${done?' <span class="tag">'+esc(D.t[q[0]])+'</span>':''}</span></div>
+  <div class="card"><p class="stem">${esc(q[2])}</p>`;
+  q[3].forEach((o,i)=>{const cls=done?(i===okk?'ok':(i===ch?'bad':'')):'';h+=`<button class="opt ${cls}" data-i="${i}" ${done?'disabled':''}><span class="l">${L[i]}</span><span>${esc(o)}</span></button>`});
+  h+='</div>';
+  if(done){const good=ch===okk;
+    h+=`<div class="card"><div class="verdict ${good?'ok':'bad'}">${good?'✓ Correct':'✗ Wrong — you chose '+L[ch]}</div>
+    <p style="margin:0 0 10px"><b>Answer: ${L[okk]}. ${esc(q[3][okk])}</b></p>
+    <div class="exp">${q[5]?esc(q[5]):'<span class="muted">The book gives no explanation for this one.</span>'}</div>
+    <p class="muted" style="margin:12px 0 0">System: ${esc(D.t[q[0]])} · book Q${q[1]}</p>
+    ${cap.sample?`<button class="btn ghost" id="aiB">${aiCache[p]?'Hide':'Explain in more detail'} ✨</button><div class="exp" id="aiOut" style="margin-top:10px">${aiCache[p]?esc(aiCache[p]):''}</div>`:''}
+    <button class="btn ghost" id="resetB" style="font-size:14px;padding:10px">Answer again</button></div>`}
+  app.innerHTML=h;
+  app.querySelectorAll('.opt:not(:disabled)').forEach(b=>b.onclick=()=>{S.ans[p]=+b.dataset.i;if(!queue)S.pos=p;save();renderQ();setTimeout(()=>{const v=document.querySelector('.verdict');if(v)v.scrollIntoView({behavior:'smooth',block:'center'})},50)});
+  const rb=$('#resetB');if(rb)rb.onclick=()=>{delete S.ans[p];save();renderQ()};
+  const ab=$('#aiB');if(ab)ab.onclick=()=>explain(p);
+  $('#prevB').disabled=queue?qi===0:p===0;
+  $('#nextB').textContent=queue&&qi===queue.length-1?'Done':'Next ›';
+  scrollTo(0,0)}
+async function explain(p){if(aiCache[p]){delete aiCache[p];renderQ();return}
+  const q=D.q[p],out=$('#aiOut'),btn=$('#aiB');btn.disabled=true;out.textContent='Thinking…';
+  const prompt=`You are a pediatrics tutor helping a doctor revise for exams (Nelson Textbook of Pediatrics level). Explain this MCQ clearly in English, under 200 words, plain text with short lines (no markdown headings, no asterisks).
+Give: 1) why the keyed answer is correct (the key concept), 2) one line on why each other option is wrong, 3) a one-line memory tip.
+If you believe the book key may be wrong, say so briefly and why.
+
+Question: ${q[2]}
+${q[3].map((o,i)=>L[i]+'. '+o).join('\n')}
+Book answer: ${L[q[4]]}
+Book explanation: ${q[5]||'(none)'}`;
+  try{const r=await cap.sample(prompt,{onText:({text})=>{out.textContent=text}});aiCache[p]=r.text;renderQ()}
+  catch(e){btn.disabled=false;out.textContent=e&&e.code==='rate_limited'?'Too many requests — try again in a minute.':'Could not get an explanation right now.'}}
+$('#prevB').onclick=()=>{if(queue){if(qi>0){qi--;renderQ()}}else if(S.pos>0){S.pos--;save();renderQ()}};
+$('#nextB').onclick=()=>{if(queue){if(qi<queue.length-1){qi++;renderQ()}else home()}else{S.pos=(S.pos+1)%N;save();renderQ()}};
+$('#homeB').onclick=home;
+
+function schedView(){view='sch';setNav(false);
+  const t=new Date();t.setDate(t.getDate()+(t.getHours()>=20?1:0));
+  const sc=S.sched||{d:t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate()),f:480,t:1410,e:30,q:nextUnanswered(S.pos),n:30};
+  let link='';try{if(/^https?:/.test(location.href)&&!/claude|anthropic|usercontent/.test(location.host))link=location.origin+location.pathname}catch(e){}
+  app.innerHTML=`<header><h1>🔔 Notifications</h1><button class="iconbtn" id="bk">Close</button></header>
+  <div class="card"><p class="muted" style="margin-top:0">Web apps on iPhone cannot ring by themselves on a timer, so the app makes a calendar file: every 30 minutes your phone calendar alerts you with the question text. Your friend imports the same file (or enters the pair code) and gets the same question at the same time.</p>
+  <div class="row"><div><label>Start date</label><input type="date" id="sd" value="${sc.d}"></div><div><label>Days</label><input type="number" id="sn" min="1" max="90" value="${sc.n}"></div></div>
+  <div class="row"><div><label>From</label><input type="time" id="sf" value="${hm(sc.f)}"></div><div><label>Until</label><input type="time" id="st" value="${hm(sc.t)}"></div></div>
+  <div class="row"><div><label>Every (minutes)</label><input type="number" id="se" min="5" max="240" value="${sc.e}"></div><div><label>Start at question #</label><input type="number" id="sq" min="1" max="${N}" value="${sc.q+1}"></div></div>
+  <label>App link (opened from the notification)</label><input id="sl" placeholder="https://yourname.github.io/peds-mcq/" value="${esc(S.link||link)}">
+  <p class="muted" id="sinfo"></p>
+  <button class="btn" id="dl">Save & download calendar (.ics)</button>
+  <ol class="steps muted"><li>iPhone: open the downloaded file → <b>Add All</b> (Calendar). If it goes to Files, open it from Files.</li><li>Calendar alerts must be allowed: Settings → Notifications → Calendar.</li><li>Send the same file or the pair code to your friend.</li></ol></div>
+  <div class="card"><h2>Friend's pair code</h2><p class="muted">Paste the code your friend made to follow the same schedule, then download.</p><input id="pc" placeholder="PEDS-20261109-480-1410-30-1-30"><button class="btn sec" id="pcB">Use this code</button>
+  ${S.sched?'<button class="btn ghost" id="offB">Turn schedule off in app</button>':''}</div>`;
+  const read=()=>({d:$('#sd').value,n:Math.max(1,Math.min(90,+$('#sn').value||1)),f:toMin($('#sf').value||'08:00'),t:toMin($('#st').value||'23:30'),e:Math.max(5,+$('#se').value||30),q:Math.max(0,Math.min(N-1,(+$('#sq').value||1)-1))});
+  const info=()=>{const s=read();const per=Math.floor((s.t-s.f)/s.e)+1;$('#sinfo').innerHTML=`${per} questions/day · ${per*s.n} alerts · Q${s.q+1} → Q${(s.q+per*s.n-1)%N+1}<br>Pair code: <b>${pairCode(s)}</b>`};
+  app.querySelectorAll('input').forEach(i=>i.oninput=info);info();
+  $('#bk').onclick=home;
+  $('#dl').onclick=async()=>{const s=read();if(s.t<s.f){toast('Until must be after From');return}S.sched=s;S.link=$('#sl').value.trim().replace(/\?.*$/,'');save();
+    await deliverFile('peds-mcq-'+s.d+'.ics',buildICS(s,S.link),'text/calendar');info()};
+  $('#pcB').onclick=()=>{const s=parsePair($('#pc').value);if(!s){toast('Code not recognised');return}
+    $('#sd').value=s.d;$('#sn').value=s.n;$('#sf').value=hm(s.f);$('#st').value=hm(s.t);$('#se').value=s.e;$('#sq').value=s.q+1;info();toast('Loaded — now download')};
+  const ob=$('#offB');if(ob)ob.onclick=()=>{S.sched=null;save();toast('Off — also delete the Peds MCQ events in Calendar');home()}}
+
+function togetherView(){view='tog';setNav(false);
+  let cmp='';
+  if(S.friend){const f=S.friend.r;let both=0,fw=[],mw=[],bw=[],ov=0,mc=0,fc=0;
+    for(let p=0;p<N;p++){const m=S.ans[p]===undefined?0:(isOk(p)?1:2);if(m&&f[p]){ov++;if(m===1)mc++;if(f[p]===1)fc++;if(m===2&&f[p]===1)mw.push(p);if(m===1&&f[p]===2)fw.push(p);if(m===2&&f[p]===2)bw.push(p)}}
+    window._cmp={mw,fw,bw};
+    cmp=`<div class="card"><h2>You vs ${esc(S.friend.name)}</h2><p class="muted">On the ${ov} questions you both answered:</p>
+    <div class="stats"><div><b>${ov?Math.round(mc*100/ov):0}%</b><span>you</span></div><div><b>${ov?Math.round(fc*100/ov):0}%</b><span>${esc(S.friend.name)}</span></div><div><b>${ov}</b><span>shared</span></div></div>
+    <div class="list" style="margin-top:10px"><a data-l="mw"><span>${esc(S.friend.name)} right, you wrong</span><b>${mw.length} ›</b></a><a data-l="fw"><span>You right, ${esc(S.friend.name)} wrong</span><b>${fw.length} ›</b></a><a data-l="bw"><span>Both wrong — discuss these</span><b>${bw.length} ›</b></a></div></div>`}
+  app.innerHTML=`<header><h1>👥 Study together</h1><button class="iconbtn" id="bk">Close</button></header>
+  <div class="card"><p class="muted" style="margin-top:0">Both of you see the same ${N} questions in the same fixed order (Q1, Q2, …), so you can say "I'm on Q240" and be on the same page.</p>
+  <label>Your name</label><input id="nm" value="${esc(S.name)}" placeholder="Mohammed">
+  <button class="btn" id="cpB">Copy my results code</button><p class="muted">Send it to your friend on WhatsApp/Telegram. Codes are about 700 characters.</p></div>
+  <div class="card"><h2>Friend's results</h2><textarea id="fc" placeholder="Paste your friend's code (starts with R1.)"></textarea><button class="btn sec" id="fcB">Compare</button></div>${cmp}`;
+  $('#bk').onclick=home;$('#nm').oninput=e=>{S.name=e.target.value;save()};
+  $('#cpB').onclick=()=>copy(myCode());
+  $('#fcB').onclick=()=>{const r=readCode($('#fc').value);if(!r){toast('Code not recognised');return}S.friend=r;save();togetherView()};
+  app.querySelectorAll('[data-l]').forEach(a=>a.onclick=()=>{const k=a.dataset.l;startQueue(window._cmp[k],{mw:'Friend right, you wrong',fw:'You right, friend wrong',bw:'Both wrong'}[k])})}
+
+// deep link ?q=123 or #q123
+let dq=null;try{const u=new URLSearchParams(location.search).get('q');const h=(location.hash.match(/^#q(\d+)$/)||[])[1];dq=+(u||h)||null}catch(e){}
+if(dq&&dq>=1&&dq<=N)openQ(dq-1);else home();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)&&!/claude|anthropic|usercontent/.test(location.host)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+})();
+</script>
+</body>
+</html>
