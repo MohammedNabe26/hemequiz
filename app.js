@@ -5,7 +5,7 @@ var QB = C.expand(window.QB);
 var BYID = {}; QB.forEach(function (q) { BYID[q.id] = q; });
 var BYCH = {}; QB.forEach(function (q) { (BYCH[q.ch] = BYCH[q.ch] || []).push(q); });
 var KEY = 'hq.v1';
-var APP_VERSION = '2026.11.04.6'; // must match version.json when publishing
+var APP_VERSION = '2026.11.11.1'; // must match version.json when publishing
 var INTERVAL = [0, 1, 3, 7, 14, 30]; // days per Leitner box
 var SESSION_N = 10;
 
@@ -239,7 +239,10 @@ function vSettings() {
     '<div class="two"><div><label>First notification</label><select id="setFrom" class="en">' + hoursOpts(S.from) + '</select></div>' +
     '<div><label>Last notification</label><select id="setTo" class="en">' + hoursOpts(S.to) + '</select></div></div>' +
     '<button class="btn primary" data-act="saveset">Save</button></div>';
+  var ios = isIOS();
   h += '<div class="card"><h3>Hourly notifications</h3>' +
+    (ios && !isStandalone() ? '<div class="note"><b>iPhone:</b> notifications only work after you add the app to your Home Screen. In Safari tap <b>Share ⬆️ → Add to Home Screen</b>, then open <b>HemeQuiz</b> from the Home Screen and come back here.</div>' : '') +
+    (ios ? '<div class="note">On iPhone, save the copied CONFIG on GitHub as <b>HEMEQUIZ_CONFIG_2</b> (Android uses HEMEQUIZ_CONFIG).</div>' : '') +
     '<div class="small mute">Permission: <b>' + perm + '</b> · Keys: <b>' + (S.keys ? 'ready' : 'none') + '</b> · Subscription: <b>' + (S.sub ? 'ready' : 'none') + '</b></div>' +
     '<ol class="steps"><li>Generate keys</li><li>Enable notifications (tap Allow)</li><li>Copy CONFIG and save it as a GitHub secret (see README)</li></ol>' +
     '<button class="btn" data-act="genkeys">1. Generate keys</button>' +
@@ -281,7 +284,11 @@ async function genKeys() {
   try { var reg = await navigator.serviceWorker.getRegistration(); var old = reg && await reg.pushManager.getSubscription(); if (old) await old.unsubscribe(); } catch (e) {}
   S.keys = { pub: b64u(pub), priv: jwk.d }; S.sub = null; save();
 }
+function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function isStandalone() { return !!(navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)); }
 async function subscribe() {
+  if (isIOS() && !isStandalone()) { toast('On iPhone: first Share → Add to Home Screen, then open the app from the Home Screen'); return; }
+  if (!('Notification' in window)) { toast('Notifications need iOS 16.4 or newer'); return; }
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) { toast('This browser does not support push'); return; }
   var p = await Notification.requestPermission();
   if (p !== 'granted') { toast('Permission was not granted'); render(); return; }

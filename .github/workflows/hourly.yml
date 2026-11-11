@@ -18,4 +18,5 @@ jobs:
       - run: node push/send.js
         env:
           HEMEQUIZ_CONFIG: ${{ secrets.HEMEQUIZ_CONFIG }}
+          HEMEQUIZ_CONFIG_2: ${{ secrets.HEMEQUIZ_CONFIG_2 }}
           FORCE: ${{ github.event.inputs.force }}

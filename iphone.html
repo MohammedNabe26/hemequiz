@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HemeQuiz · iPhone setup</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--bg:#f6f3ef;--card:#fff;--ink:#1d1b1a;--mute:#6b645f;--line:#e6dfd8;--brand:#b42a2f;--soft:#f8e4e3}
+@media (prefers-color-scheme:dark){:root{--bg:#161413;--card:#211e1d;--ink:#f1ece8;--mute:#a39a94;--line:#37312e;--brand:#e5646a;--soft:#3a2224}}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 -apple-system,system-ui,sans-serif}
+.w{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:24px;margin:6px 0 4px}h2{font-size:18px;margin:0 0 6px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+a.b{display:block;text-align:center;background:var(--brand);color:#fff;text-decoration:none;font-weight:600;padding:15px;border-radius:12px;margin:10px 0}
+a.s{background:var(--soft);color:var(--brand)}
+ol{padding-left:22px;margin:6px 0}li{margin:6px 0}.m{color:var(--mute);font-size:15px}
+code{background:var(--soft);color:var(--brand);padding:1px 6px;border-radius:6px;font-size:15px}
+.warn{background:#fbefc9;color:#5a4300;border-radius:12px;padding:10px 12px;font-size:15px}
+@media (prefers-color-scheme:dark){.warn{background:#3b3112;color:#f0d68a}}
+</style>
+</head>
+<body><div class="w">
+<h1>HemeQuiz on iPhone</h1>
+<p class="m">1,090 hematology questions from 35 chapters, with the original tables and hourly questions. You need iOS 16.4 or newer.</p>
+
+<div class="c"><h2>1. Install the app</h2>
+<p class="warn" id="safari">Open this page in <b>Safari</b>. Chrome on iPhone can't install apps or receive notifications.</p>
+<a class="b" href="./">Open HemeQuiz</a>
+<ol>
+<li>In Safari tap <b>Share ⬆️</b> → <b>Add to Home Screen</b> → <b>Add</b>.</li>
+<li>Close Safari and open <b>HemeQuiz</b> from your Home Screen. Always use this icon, because the progress, tables and notifications belong to it.</li>
+</ol></div>
+
+<div class="c"><h2>2. Table pictures (once)</h2>
+<ol>
+<li>Save <code>hemequiz-tables.json</code> to the <b>Files</b> app (tap the file → Share → <b>Save to Files</b>).</li>
+<li>In HemeQuiz: <b>Settings → Table images → Import tables file</b> → pick it from Files.</li>
+<li>Wait for <b>"186 tables imported ✓"</b>.</li>
+</ol></div>
+
+<div class="c"><h2>3. Hourly questions</h2>
+<ol>
+<li>In HemeQuiz (opened from the Home Screen): <b>Settings</b>. Set the first and last notification times → <b>Save</b>.</li>
+<li>Tap <b>1. Generate keys</b> → <b>2. Enable notifications</b> → <b>Allow</b>.</li>
+<li>Tap <b>3. Copy CONFIG</b>.</li>
+<li>Open the GitHub link below. <b>Name:</b> <code>HEMEQUIZ_CONFIG_2</code>. <b>Secret:</b> paste. Tap <b>Add secret</b>.</li>
+</ol>
+<a class="b s" href="https://github.com/MohammedNabe26/hemequiz/settings/secrets/actions/new">Add the secret on GitHub</a>
+<ol start="5">
+<li>Test it: open the link below and tap <b>Run workflow</b>. A question should arrive within a minute.</li>
+</ol>
+<a class="b s" href="https://github.com/MohammedNabe26/hemequiz/actions/workflows/hourly.yml">Send a test question</a>
+<p class="m">If nothing arrives: iPhone <b>Settings → Notifications → HemeQuiz → Allow Notifications</b>, and make sure a Focus mode isn't silencing it.</p>
+</div>
+</div>
+<script>
+// hide the Safari warning when already in Safari (not Chrome/Firefox/Edge on iOS or an in-app browser)
+var ua = navigator.userAgent;
+if (/Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|Instagram|FBAN|FBAV|GSA/.test(ua)) document.getElementById('safari').style.display = 'none';
+</script>
+</body>
+</html>

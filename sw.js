@@ -1,4 +1,4 @@
-const VERSION = 'hq-v6';
+const VERSION = 'hq-v7';
 const SHELL = ['./', 'index.html', 'style.css', 'core.js', 'questions.js', 'app.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'badge-96.png'];
 
 self.addEventListener('install', e => {
