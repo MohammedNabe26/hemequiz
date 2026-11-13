@@ -72,20 +72,26 @@ ol.steps{padding-left:20px;margin:6px 0}ol.steps li{margin:4px 0;font-size:14.5p
 <script>
 (function(){var K='pedsmcq_data';
 try{var r=localStorage.getItem(K);if(r){window.MCQ=JSON.parse(r);return}}catch(e){}
+function b(s){var r=atob(s),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
+async function unlock(pw){var e=await (await fetch('data.enc',{cache:'no-cache'})).json();
+ var base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+ var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b(e.s),iterations:e.it,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+ var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b(e.i)},key,b(e.c));return new TextDecoder().decode(pt)}
+function store(txt){var d=JSON.parse(txt);if(!d.q||!d.t)throw 0;localStorage.setItem(K,txt);location.reload()}
 document.addEventListener('DOMContentLoaded',function(){
  var a=document.getElementById('app');
- a.innerHTML='<header><h1>Pediatrics MCQ</h1></header><div class="card"><h2>Load the questions (once per phone)</h2><p class="muted">The book questions are not stored on the public website. Choose the file <b>peds-mcq-data.json</b> that you saved from the chat (or that your friend sent you). It stays only on this phone.</p><label>Questions file</label><input type="file" id="df" accept=".json,application/json"><p class="muted" id="dm"></p></div>';
- document.getElementById('df').onchange=function(ev){var f=ev.target.files[0];if(!f)return;var rd=new FileReader();
-  rd.onload=function(){try{var d=JSON.parse(rd.result);if(!d.q||!d.t||!d.q.length)throw 0;localStorage.setItem(K,rd.result);location.reload()}
-   catch(e){document.getElementById('dm').textContent='This is not the right file, or the phone ran out of storage.'}};rd.readAsText(f)};
+ a.innerHTML='<header><h1>Pediatrics MCQ</h1></header><div class="card"><h2>Load the questions (only once)</h2><p class="muted">Do this inside the app opened from your <b>Home Screen</b>, not in Safari. Choose <b>peds-mcq-data.json</b> from Files. After that the app keeps the questions and your progress — notifications open the app directly.</p><input type="file" id="df" accept=".json,application/json"><p class="muted" id="dm"></p></div>';
+ var m=document.getElementById('dm');
+ document.getElementById('df').onchange=function(ev){var f=ev.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){try{store(rd.result)}catch(e){m.textContent='Not the right file.'}};rd.readAsText(f)};
 });})();
 </script>
+
 <script>
 (function(){
 if(!window.MCQ)return;
 const D=window.MCQ, N=D.q.length, L='ABCDEF', KEY='pedsmcq_v1';
 const $=s=>document.querySelector(s), app=$('#app');
-let S={ans:{},pos:0,sched:null,friend:null,name:''};
+let S={ans:{},pos:0,sched:null,friend:null,name:'',keys:null,sub:null};
 try{const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r));}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -153,8 +159,8 @@ function home(){view='home';setNav(false);queue=null;qname='All questions';
   <div class="bar"><i style="width:${a*100/N}%"></i></div>
   <button class="btn" id="contB">${a?'Continue':'Start'} · Q${nx+1}</button>
   <div class="row"><button class="btn sec" id="wrongB" ${wrong?'':'disabled'}>Review wrong (${wrong})</button></div></div>
-  <div class="card"><h2>🔔 Notifications every 30 min</h2><p class="muted">${S.sched?`Active from ${S.sched.d}, ${hm(S.sched.f)}–${hm(S.sched.t)}, every ${S.sched.e} min, ${S.sched.n} days.<br>Pair code: <b>${pairCode(S.sched)}</b>`:'Not set up yet. Works on iPhone and Android through your phone calendar.'}</p>
-  <button class="btn sec" id="schB">${S.sched?'Edit / re-download':'Set up notifications'}</button></div>
+  <div class="card"><h2>🔔 Notifications every 30 min</h2><p class="muted">${S.sub&&S.sched?`On: ${hm(S.sched.f)}–${hm(S.sched.t)}, every ${S.sched.e} min.<br>Pair code: <b>${pairCode(S.sched)}</b>`:'Not set up yet. Tapping a notification opens this app on the question.'}</p>
+  <button class="btn sec" id="schB">${S.sub?'Settings':'Set up notifications'}</button></div>
   <div class="card"><h2>👥 Study together</h2><p class="muted">You and your friend get the same questions in the same order. Share your results code to compare.</p>
   ${S.friend?`<p>${esc(S.friend.name)}: <b>${S.friend.r.filter(v=>v===1).length}</b> correct of <b>${S.friend.r.filter(v=>v).length}</b> answered</p>`:''}
   <button class="btn sec" id="togB">Compare with friend</button></div>
@@ -208,31 +214,51 @@ $('#prevB').onclick=()=>{if(queue){if(qi>0){qi--;renderQ()}}else if(S.pos>0){S.p
 $('#nextB').onclick=()=>{if(queue){if(qi<queue.length-1){qi++;renderQ()}else home()}else{S.pos=(S.pos+1)%N;save();renderQ()}};
 $('#homeB').onclick=home;
 
+function b64u(buf){let s='';new Uint8Array(buf).forEach(b=>s+=String.fromCharCode(b));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function fromB64u(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const r=atob(s),a=new Uint8Array(r.length);for(let i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isStandalone=()=>!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
+async function swReg(){return navigator.serviceWorker.register('sw.js')}
+async function genKeys(){const kp=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+  const pub=await crypto.subtle.exportKey('raw',kp.publicKey),jwk=await crypto.subtle.exportKey('jwk',kp.privateKey);
+  try{const reg=await swReg();const old=await reg.pushManager.getSubscription();if(old)await old.unsubscribe()}catch(e){}
+  S.keys={pub:b64u(pub),priv:jwk.d};S.sub=null;save()}
+async function enablePush(){
+  if(isIOS()&&!isStandalone()){toast('First: Share → Add to Home Screen, then open the app from the Home Screen');return}
+  if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){toast('Needs iOS 16.4 or newer');return}
+  const p=await Notification.requestPermission();if(p!=='granted'){toast('Permission was not granted');return}
+  if(!S.keys)await genKeys();
+  const reg=await swReg();await navigator.serviceWorker.ready;
+  let sub=await reg.pushManager.getSubscription();if(sub)await sub.unsubscribe();
+  sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:fromB64u(S.keys.pub)});
+  S.sub=sub.toJSON();save();toast('Notifications enabled ✓')}
+const makeConfig=()=>JSON.stringify({sub:S.sub,pub:S.keys.pub,priv:S.keys.priv,d:S.sched.d,f:S.sched.f,t:S.sched.t,e:S.sched.e,q:S.sched.q,N,tz:-new Date().getTimezoneOffset(),origin:location.origin+location.pathname.replace(/[^/]*$/,'')});
 function schedView(){view='sch';setNav(false);
-  const t=new Date();t.setDate(t.getDate()+(t.getHours()>=20?1:0));
-  const sc=S.sched||{d:t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate()),f:480,t:1410,e:30,q:nextUnanswered(S.pos),n:30};
-  let link='';try{if(/^https?:/.test(location.href)&&!/claude|anthropic|usercontent/.test(location.host))link=location.origin+location.pathname}catch(e){}
+  const t=new Date();const sc=S.sched||{d:t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate()),f:480,t:1410,e:30,q:nextUnanswered(S.pos),n:365};
+  const ready=!!(S.sub&&S.keys);
   app.innerHTML=`<header><h1>🔔 Notifications</h1><button class="iconbtn" id="bk">Close</button></header>
-  <div class="card"><p class="muted" style="margin-top:0">Web apps on iPhone cannot ring by themselves on a timer, so the app makes a calendar file: every 30 minutes your phone calendar alerts you with the question text. Your friend imports the same file (or enters the pair code) and gets the same question at the same time.</p>
-  <div class="row"><div><label>Start date</label><input type="date" id="sd" value="${sc.d}"></div><div><label>Days</label><input type="number" id="sn" min="1" max="90" value="${sc.n}"></div></div>
+  ${isIOS()&&!isStandalone()?'<div class="card now"><b>Open the app from your Home Screen first.</b><p class="muted" style="margin:6px 0 0">In Safari: Share ⬆️ → Add to Home Screen. Then open “Peds MCQ” from the Home Screen and come back here. Notifications then open the app with your progress.</p></div>':''}
+  <div class="card"><h2>1. Times</h2>
   <div class="row"><div><label>From</label><input type="time" id="sf" value="${hm(sc.f)}"></div><div><label>Until</label><input type="time" id="st" value="${hm(sc.t)}"></div></div>
-  <div class="row"><div><label>Every (minutes)</label><input type="number" id="se" min="5" max="240" value="${sc.e}"></div><div><label>Start at question #</label><input type="number" id="sq" min="1" max="${N}" value="${sc.q+1}"></div></div>
-  <label>App link (opened from the notification)</label><input id="sl" placeholder="https://yourname.github.io/peds-mcq/" value="${esc(S.link||link)}">
+  <div class="row"><div><label>Every (minutes)</label><select id="se"><option ${sc.e==30?'selected':''}>30</option><option ${sc.e==60?'selected':''}>60</option></select></div><div><label>Start at question #</label><input type="number" id="sq" min="1" max="${N}" value="${sc.q+1}"></div></div>
+  <label>Start date</label><input type="date" id="sd" value="${sc.d}">
   <p class="muted" id="sinfo"></p>
-  <button class="btn" id="dl">Save & download calendar (.ics)</button>
-  <ol class="steps muted"><li>iPhone: open the downloaded file → <b>Add All</b> (Calendar). If it goes to Files, open it from Files.</li><li>Calendar alerts must be allowed: Settings → Notifications → Calendar.</li><li>Send the same file or the pair code to your friend.</li></ol></div>
-  <div class="card"><h2>Friend's pair code</h2><p class="muted">Paste the code your friend made to follow the same schedule, then download.</p><input id="pc" placeholder="PEDS-20261109-480-1410-30-1-30"><button class="btn sec" id="pcB">Use this code</button>
-  ${S.sched?'<button class="btn ghost" id="offB">Turn schedule off in app</button>':''}</div>`;
-  const read=()=>({d:$('#sd').value,n:Math.max(1,Math.min(90,+$('#sn').value||1)),f:toMin($('#sf').value||'08:00'),t:toMin($('#st').value||'23:30'),e:Math.max(5,+$('#se').value||30),q:Math.max(0,Math.min(N-1,(+$('#sq').value||1)-1))});
-  const info=()=>{const s=read();const per=Math.floor((s.t-s.f)/s.e)+1;$('#sinfo').innerHTML=`${per} questions/day · ${per*s.n} alerts · Q${s.q+1} → Q${(s.q+per*s.n-1)%N+1}<br>Pair code: <b>${pairCode(s)}</b>`};
-  app.querySelectorAll('input').forEach(i=>i.oninput=info);info();
+  <label>Friend's pair code (optional — to get the same questions at the same time)</label><div class="row"><input id="pc" placeholder="PEDS-…"><button class="btn sec" id="pcB" style="margin:0;flex:0 0 90px">Use</button></div></div>
+  <div class="card"><h2>2. Turn on</h2>
+  <button class="btn" id="enB">${ready?'✓ Enabled — enable again':'Enable notifications'}</button>
+  <button class="btn sec" id="cfB" ${ready?'':'disabled'}>Copy CONFIG</button>
+  <button class="btn ghost" id="tsB" ${ready?'':'disabled'}>Test notification on this phone</button>
+  <ol class="steps muted"><li>Tap <b>Enable notifications</b> → Allow.</li><li>Tap <b>Copy CONFIG</b>.</li><li>GitHub → hemequiz repo → Settings → Secrets and variables → Actions → <b>New repository secret</b>.<br>Name: <b>PEDS_CONFIG</b> (you), <b>PEDS_CONFIG_2</b> (friend), <b>PEDS_CONFIG_3</b> (one more phone). Paste → Add.</li><li>If you change the times, copy CONFIG again and update the secret.</li></ol>
+  <p class="muted">CONFIG contains a private key — only paste it into the GitHub secret.</p></div>`;
+  const read=()=>({d:$('#sd').value,n:365,f:toMin($('#sf').value||'08:00'),t:toMin($('#st').value||'23:30'),e:+$('#se').value||30,q:Math.max(0,Math.min(N-1,(+$('#sq').value||1)-1))});
+  const info=()=>{const s=read();const per=Math.floor((s.t-s.f)/s.e)+1;$('#sinfo').innerHTML=`${per} questions/day, starting Q${s.q+1} on ${s.d}<br>Your pair code: <b>${pairCode(s)}</b>`};
+  const keep=()=>{const s=read();if(s.t<s.f){toast('Until must be after From');return false}S.sched=s;save();info();return true};
+  app.querySelectorAll('input,select').forEach(i=>i.onchange=keep);info();
   $('#bk').onclick=home;
-  $('#dl').onclick=async()=>{const s=read();if(s.t<s.f){toast('Until must be after From');return}S.sched=s;S.link=$('#sl').value.trim().replace(/\?.*$/,'');save();
-    await deliverFile('peds-mcq-'+s.d+'.ics',buildICS(s,S.link),'text/calendar');info()};
-  $('#pcB').onclick=()=>{const s=parsePair($('#pc').value);if(!s){toast('Code not recognised');return}
-    $('#sd').value=s.d;$('#sn').value=s.n;$('#sf').value=hm(s.f);$('#st').value=hm(s.t);$('#se').value=s.e;$('#sq').value=s.q+1;info();toast('Loaded — now download')};
-  const ob=$('#offB');if(ob)ob.onclick=()=>{S.sched=null;save();toast('Off — also delete the Peds MCQ events in Calendar');home()}}
-
+  $('#pcB').onclick=()=>{const s=parsePair($('#pc').value);if(!s){toast('Code not recognised');return}$('#sd').value=s.d;$('#sf').value=hm(s.f);$('#st').value=hm(s.t);$('#se').value=String(s.e);$('#sq').value=s.q+1;keep();toast('Same schedule as your friend ✓')};
+  $('#enB').onclick=async()=>{if(!keep())return;try{await enablePush();schedView()}catch(e){toast('Error: '+e.message)}};
+  $('#cfB').onclick=()=>{if(!keep())return;copy(makeConfig())};
+  $('#tsB').onclick=async()=>{try{const reg=await swReg();const ns=nowSlot(S.sched);const p=ns.cur?ns.cur.p:S.pos;await reg.showNotification('Peds MCQ · Q'+(p+1),{body:D.q[p][2],icon:'icon-192.png',tag:'peds',data:{q:p+1}})}catch(e){toast('Error: '+e.message)}}}
 function togetherView(){view='tog';setNav(false);
   let cmp='';
   if(S.friend){const f=S.friend.r;let both=0,fw=[],mw=[],bw=[],ov=0,mc=0,fc=0;
@@ -254,7 +280,7 @@ function togetherView(){view='tog';setNav(false);
 // deep link ?q=123 or #q123
 let dq=null;try{const u=new URLSearchParams(location.search).get('q');const h=(location.hash.match(/^#q(\d+)$/)||[])[1];dq=+(u||h)||null}catch(e){}
 if(dq&&dq>=1&&dq<=N)openQ(dq-1);else home();
-if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)&&!/claude|anthropic|usercontent/.test(location.host)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)&&!/claude|anthropic|usercontent/.test(location.host)){navigator.serviceWorker.register('sw.js').catch(()=>{});navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.type==='open-q'&&e.data.q>=1&&e.data.q<=N)openQ(e.data.q-1)})}
 })();
 </script>
 </body>

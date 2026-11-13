@@ -1,0 +1,23 @@
+name: peds-30min-question
+on:
+  schedule:
+    - cron: '5,35 * * * *'   # every 30 min (GitHub may delay a few minutes)
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Send even outside active hours (1 = yes)'
+        default: '1'
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install --prefix push
+      - run: node push/peds-send.js
+        env:
+          PEDS_CONFIG: ${{ secrets.PEDS_CONFIG }}
+          PEDS_CONFIG_2: ${{ secrets.PEDS_CONFIG_2 }}
+          PEDS_CONFIG_3: ${{ secrets.PEDS_CONFIG_3 }}
+          FORCE: ${{ github.event.inputs.force }}
